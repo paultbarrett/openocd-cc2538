@@ -67,10 +67,23 @@ static int add_connection(struct service *service, struct command_context *cmd_c
 	int flag = 1;
 
 	c = malloc(sizeof(struct connection));
+
+	if (!c) {
+		LOG_ERROR("Failed to allocate connection.");
+		return ERROR_FAIL;
+	}
+
+	c->cmd_ctx = copy_command_context(cmd_ctx);
+
+	if (!c->cmd_ctx) {
+		LOG_ERROR("Failed to copy command context.");
+		free(c);
+		return ERROR_FAIL;
+	}
+
 	c->fd = -1;
 	c->fd_out = -1;
 	memset(&c->sin, 0, sizeof(c->sin));
-	c->cmd_ctx = copy_command_context(cmd_ctx);
 	c->service = service;
 	c->input_pending = 0;
 	c->priv = NULL;
