@@ -897,6 +897,9 @@ int target_run_flash_async_algorithm(struct target *target,
 	uint32_t fifo_start_addr = buffer_start + 8;
 	uint32_t fifo_end_addr = buffer_start + buffer_size;
 
+        printf("fifo start is %08x\n", fifo_start_addr);
+        printf("fifo end is %08x\n", fifo_end_addr);
+
 	uint32_t wp = fifo_start_addr;
 	uint32_t rp = fifo_start_addr;
 
@@ -924,7 +927,14 @@ int target_run_flash_async_algorithm(struct target *target,
 
 	while (count > 0) {
 
-		retval = target_read_u32(target, rp_addr, &rp);
+                uint32_t tmp;
+		target_read_u32(target, wp_addr, &tmp);
+                printf("RAM wp=%08x\n", tmp);
+		target_read_u32(target, rp_addr, &tmp);
+                printf("RAM rp=%08x\n", tmp);
+
+
+                retval = target_read_u32(target, rp_addr, &rp);
 		if (retval != ERROR_OK) {
 			LOG_ERROR("failed to get read pointer");
 			break;
@@ -948,14 +958,22 @@ int target_run_flash_async_algorithm(struct target *target,
 		 * crossing the wrap around. Make sure to not fill it completely,
 		 * because that would make wp == rp and that's the empty condition. */
 		uint32_t thisrun_bytes;
-		if (rp > wp)
+		if (rp > wp) {
+                        printf("wp ----> rp-4 ... end\n");
 			thisrun_bytes = rp - wp - block_size;
-		else if (rp > fifo_start_addr)
+                }
+		else if (rp > fifo_start_addr) {
+                        printf("rp ... wp ----> end\n");
 			thisrun_bytes = fifo_end_addr - wp;
-		else
+                }
+                else {
+                        printf("rp ... wp ----> end-4\n");
 			thisrun_bytes = fifo_end_addr - wp - block_size;
+                }
 
+                printf("we can write %d bytes\n", thisrun_bytes);
 		if (thisrun_bytes == 0) {
+
 			/* Throttle polling a bit if transfer is (much) faster than flash
 			 * programming. The exact delay shouldn't matter as long as it's
 			 * less than buffer size / flash speed. This is very unlikely to
@@ -964,7 +982,7 @@ int target_run_flash_async_algorithm(struct target *target,
 
 			/* to stop an infinite loop on some targets check and increment a timeout
 			 * this issue was observed on a stellaris using the new ICDI interface */
-			if (timeout++ >= 500) {
+			if (timeout++ >= 50) {
 				LOG_ERROR("timeout waiting for algorithm, a target reset is recommended");
 				return ERROR_FLASH_OPERATION_FAILED;
 			}
@@ -977,6 +995,7 @@ int target_run_flash_async_algorithm(struct target *target,
 		/* Limit to the amount of data we actually want to write */
 		if (thisrun_bytes > count * block_size)
 			thisrun_bytes = count * block_size;
+                printf("we'll write %d bytes\n", thisrun_bytes);
 
 		/* Write data to fifo */
 		retval = target_write_buffer(target, wp, thisrun_bytes, buffer);
@@ -987,8 +1006,10 @@ int target_run_flash_async_algorithm(struct target *target,
 		buffer += thisrun_bytes;
 		count -= thisrun_bytes / block_size;
 		wp += thisrun_bytes;
+                printf("wp was %08x... \n", wp);
 		if (wp >= fifo_end_addr)
 			wp = fifo_start_addr;
+                printf("... now %08x\n", wp);
 
 		/* Store updated write pointer to target */
 		retval = target_write_u32(target, wp_addr, wp);

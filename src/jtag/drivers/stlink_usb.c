@@ -400,7 +400,7 @@ static int stlink_usb_error_check(void *handle)
 			return ERROR_FAIL;
 		default:
 			LOG_DEBUG("unknown/unexpected STLINK status code 0x%x", h->databuf[0]);
-			return ERROR_FAIL;
+			return ERROR_WAIT;//FAIL;
 	}
 }
 
@@ -1077,12 +1077,15 @@ static int stlink_usb_run(void *handle)
 
 	assert(handle != NULL);
 
+        printf("stlink_usb_run\n");
 	if (h->jtag_api == STLINK_JTAG_API_V2) {
 		res = stlink_usb_write_debug_reg(handle, DCB_DHCSR, DBGKEY|C_DEBUGEN);
+                printf("wrote DCB_DHCSR = DBGKEY|C_DEBUGEN\n");
 
 		return res;
 	}
 
+        printf("run core\n");
 	stlink_usb_init_buffer(handle, h->rx_ep, 2);
 
 	h->cmdbuf[h->cmdidx++] = STLINK_DEBUG_COMMAND;

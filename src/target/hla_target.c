@@ -596,6 +596,7 @@ static int adapter_resume(struct target *target, int current,
 	struct breakpoint *breakpoint = NULL;
 	struct reg *pc;
 
+        printf("adapter resume\n");
 	LOG_DEBUG("%s %d 0x%08" PRIx32 " %d %d", __func__, current, address,
 			handle_breakpoints, debug_execution);
 
@@ -629,12 +630,16 @@ static int adapter_resume(struct target *target, int current,
 	if (res != ERROR_OK)
 		return res;
 
+        printf("---restoring context---\n");
 	armv7m_restore_context(target);
+        printf("---restoring context done---\n");
 
 	/* restore savedDCRDR */
+        printf("---restoring saved dcrdr---\n");
 	res = target_write_u32(target, DCB_DCRDR, target->savedDCRDR);
 	if (res != ERROR_OK)
 		return res;
+        printf("---restoring saved dcrdr done---\n");
 
 	/* registers are now invalid */
 	register_cache_invalidate(armv7m->arm.core_cache);
@@ -658,7 +663,9 @@ static int adapter_resume(struct target *target, int current,
 		}
 	}
 
+        printf("--- run? ---\n");
 	res = adapter->layout->api->run(adapter->handle);
+        printf("--- run returned ---\n");
 
 	if (res != ERROR_OK)
 		return res;

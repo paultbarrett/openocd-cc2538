@@ -34,7 +34,7 @@
  * arm-none-eabi-gcc -c cortex-m0.S
  *
  * To disassemble:
- * arm-none-eabi-objdump -o cortex-m0.o
+ * arm-none-eabi-objdump -d cortex-m0.o
  *
  * Thanks to Jens Bauer for providing advice on some of the tweaks.
  */
@@ -69,4 +69,12 @@ no_wrap:
 	subs	r0, #4          /* decrement byte count */
 	bne     wait_fifo	/* loop if not done */
 exit:
+        ldr     r5, NRF_NVMC_READY
+wait_ready:
+        ldr 	r4, [r5, #0]
+        cmp     r4, #1
+        bne     wait_ready
 	bkpt    #0
+.align 2
+NRF_NVMC_READY:
+        .word   0x4001e400

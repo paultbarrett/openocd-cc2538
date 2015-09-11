@@ -689,6 +689,7 @@ void cortex_m_enable_breakpoints(struct target *target)
 static int cortex_m_resume(struct target *target, int current,
 	uint32_t address, int handle_breakpoints, int debug_execution)
 {
+        printf("cortex_m resume\n");
 	struct armv7m_common *armv7m = target_to_armv7m(target);
 	struct breakpoint *breakpoint = NULL;
 	uint32_t resume_pc;

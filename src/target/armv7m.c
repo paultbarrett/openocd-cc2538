@@ -378,6 +378,7 @@ int armv7m_start_algorithm(struct target *target,
 
 	for (int i = 0; i < num_mem_params; i++) {
 		/* TODO: Write only out params */
+                printf("writing mem param %d\n", i);
 		retval = target_write_buffer(target, mem_params[i].address,
 				mem_params[i].size,
 				mem_params[i].value);
@@ -386,6 +387,8 @@ int armv7m_start_algorithm(struct target *target,
 	}
 
 	for (int i = 0; i < num_reg_params; i++) {
+                printf("writing reg param %d\n", i);
+
 		struct reg *reg =
 			register_get_by_name(armv7m->arm.core_cache, reg_params[i].reg_name, 0);
 /*		uint32_t regvalue; */
@@ -403,6 +406,9 @@ int armv7m_start_algorithm(struct target *target,
 
 /*		regvalue = buf_get_u32(reg_params[i].value, 0, 32); */
 		armv7m_set_core_reg(reg, reg_params[i].value);
+
+                /* Check it */
+                
 	}
 
 	if (armv7m_algorithm_info->core_mode != ARM_MODE_ANY &&
@@ -424,6 +430,7 @@ int armv7m_start_algorithm(struct target *target,
 	/* save previous core mode */
 	armv7m_algorithm_info->core_mode = core_mode;
 
+        printf("resuming to entry point %08x\n", entry_point);
 	retval = target_resume(target, 0, entry_point, 1, 1);
 
 	return retval;
