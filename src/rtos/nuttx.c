@@ -161,7 +161,7 @@ static int nuttx_thread_packet(struct connection *connection,
 	char cmd[GDB_BUFFER_SIZE / 2] = "";
 
 	if (!strncmp(packet, "qRcmd", 5)) {
-		int len = unhexify(cmd, packet + 6, sizeof(cmd));
+		int len = unhexify((uint8_t *)cmd, packet + 6, sizeof(cmd));
 		int offset;
 
 		if (len <= 0)
@@ -235,8 +235,6 @@ static int nuttx_update_threads(struct rtos *rtos)
 	/* free old thread info */
 	if (rtos->thread_details) {
 		for (i = 0; i < rtos->thread_count; i++) {
-			if (rtos->thread_details[i].display_str)
-				free(rtos->thread_details[i].display_str);
 			if (rtos->thread_details[i].thread_name_str)
 				free(rtos->thread_details[i].thread_name_str);
 		}
@@ -288,10 +286,10 @@ static int nuttx_update_threads(struct rtos *rtos)
 			thread = &rtos->thread_details[thread_count - 1];
 			thread->threadid = tcb_addr;
 			thread->exists = true;
-			thread->display_str = malloc(256);
-			snprintf(thread->display_str, 256, "pid:%d",
-			    tcb.dat[pid_offset - 8] |
-			    tcb.dat[pid_offset - 8 + 1] << 8);
+//			thread->display_str = malloc(256);
+//			snprintf(thread->display_str, 256, "pid:%d",
+//			    tcb.dat[pid_offset - 8] |
+//			    tcb.dat[pid_offset - 8 + 1] << 8);
 
 			if (name_offset) {
 				thread->thread_name_str = malloc(name_size + 1);
