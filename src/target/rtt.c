@@ -192,7 +192,7 @@ int target_rtt_write_callback(struct rtt_control *ctrl,
 	int ret;
 	struct rtt_buffer rttbuf;
 
-	ret = read_rtt_buffer(target, ctrl, channel, false, &rttbuf);
+	ret = read_rtt_buffer(target, ctrl, channel, RTT_CHANNEL_TYPE_DOWN, &rttbuf);
 
 	if (ret != ERROR_OK) {
 		LOG_ERROR("Failed to read RTT buffer of down-channel %u", channel);
