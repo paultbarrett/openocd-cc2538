@@ -1676,6 +1676,8 @@ void cortex_m_deinit_target(struct target *target)
 {
 	struct cortex_m_common *cortex_m = target_to_cm(target);
 
+	dap_dp_uninit(cortex_m->armv7m.debug_ap->dap);
+
 	free(cortex_m->fp_comparator_list);
 
 	cortex_m_dwt_free(target);

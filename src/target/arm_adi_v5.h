@@ -486,6 +486,9 @@ int mem_ap_write_buf_noincr(struct adiv5_ap *ap,
 int dap_dp_init(struct adiv5_dap *dap);
 int mem_ap_init(struct adiv5_ap *ap);
 
+/* Deinitialisation of the debug system and power domains */
+int dap_dp_uninit(struct adiv5_dap *dap);
+
 /* Invalidate cached DP select and cached TAR and CSW of all APs */
 void dap_invalidate_cache(struct adiv5_dap *dap);
 

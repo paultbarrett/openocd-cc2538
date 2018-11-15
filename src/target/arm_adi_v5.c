@@ -711,6 +711,26 @@ int dap_dp_init(struct adiv5_dap *dap)
 }
 
 /**
+ * Deinitialize a DAP.  This turns off power to the debug domain.
+ *
+ * @param dap The DAP being initialized.
+ */
+int dap_dp_uninit(struct adiv5_dap *dap)
+{
+	int retval;
+
+	LOG_DEBUG("%s", adiv5_dap_name(dap));
+
+	/* Deassert CDBGPWRUPREQ and CSYSPWRUPREQ */
+	dap->dp_ctrl_stat = 0;
+	retval = dap_queue_dp_write(dap, DP_CTRL_STAT, dap->dp_ctrl_stat);
+	if (retval != ERROR_OK)
+		return retval;
+
+	return dap_run(dap);
+}
+
+/**
  * Initialize a DAP.  This sets up the power domains, prepares the DP
  * for further use, and arranges to use AP #0 for all AP operations
  * until dap_ap-select() changes that policy.
