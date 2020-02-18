@@ -55,7 +55,7 @@ extern uint32_t flash_sector_erase(uint32_t sector_address)
         bool already_erased = true;
         int i;
 
-        for (i = 0; i < FLASH_ERASE_SIZE / 4; i++) {
+        for (i = 0; i < FLASH_ERASE_SIZE; i += 4) {
                 if ((*(uint32_t *)(sector_address + i)) != 0xffffffff) {
                         already_erased = false;
                         break;
