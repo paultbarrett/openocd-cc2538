@@ -90,8 +90,13 @@ extern uint32_t flash_bank_erase(void)
 extern uint32_t flash_program(uint8_t *data_buffer, uint32_t address,
                               uint32_t count)
 {
-        *(uint32_t *)0x20001be4 = 0xaaaabbb1;
-        *(uint32_t *)0x20001bf8 = 0xaaaabbb2;
-        for (;;)
-                continue;
+        long ret;
+        ret = ROM->ProgramFlash((unsigned long *)data_buffer, address, count);
+        if (ret == -1)
+                return 0x101;
+        if (ret == -2)
+                return 0x102;
+        if (ret != 0)
+                return 0x103;
+        return 0;
 }
