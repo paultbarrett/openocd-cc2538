@@ -52,6 +52,18 @@ struct rom_api {
 extern uint32_t flash_sector_erase(uint32_t sector_address)
 {
         long ret;
+        bool already_erased = true;
+        int i;
+
+        for (i = 0; i < FLASH_ERASE_SIZE / 4; i++) {
+                if ((*(uint32_t *)sector_address) != 0xffffffff) {
+                        already_erased = false;
+                        break;
+                }
+        }
+        if (already_erased)
+                return 0;
+
         ret = ROM->PageErase(sector_address, FLASH_ERASE_SIZE);
         if (ret == -1)
                 return 0x101;
