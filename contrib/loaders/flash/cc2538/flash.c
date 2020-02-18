@@ -56,7 +56,7 @@ extern uint32_t flash_sector_erase(uint32_t sector_address)
         int i;
 
         for (i = 0; i < FLASH_ERASE_SIZE / 4; i++) {
-                if ((*(uint32_t *)sector_address) != 0xffffffff) {
+                if ((*(uint32_t *)(sector_address + i)) != 0xffffffff) {
                         already_erased = false;
                         break;
                 }
@@ -78,7 +78,12 @@ extern uint32_t flash_bank_erase(void)
 {
         int i;
         long ret;
-        for (i = 0; i < ROM->GetFlashSize() / FLASH_ERASE_SIZE; i++)
+        /* Some pages may be locked by bits in the CCA.  Erasing the CCA
+           first will ensure that those pages will become unlocked.
+           So, since the CCA is the last page in flash, let's just erase
+           sectors backwards. */
+        int num_sectors = ROM->GetFlashSize() / FLASH_ERASE_SIZE;
+        for (i = num_sectors - 1; i >= 0; i--)
         {
                 ret = flash_sector_erase(flash_sector_to_address(i));
                 if (ret != 0)
@@ -93,10 +98,10 @@ extern uint32_t flash_program(uint8_t *data_buffer, uint32_t address,
         long ret;
         ret = ROM->ProgramFlash((unsigned long *)data_buffer, address, count);
         if (ret == -1)
-                return 0x101;
+                return 0x104;
         if (ret == -2)
-                return 0x102;
+                return 0x105;
         if (ret != 0)
-                return 0x103;
+                return 0x106;
         return 0;
 }
