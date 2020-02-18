@@ -51,23 +51,28 @@ struct rom_api {
 
 extern uint32_t flash_sector_erase(uint32_t sector_address)
 {
-        *(uint32_t *)0x20001be4 = 0xeeeefff1;
-        *(uint32_t *)0x20001bf8 = 0xeeeefff2;
-        for (;;)
-                continue;
-
-}
-
-extern uint32_t flash_bank_erase(void)
-{
-        long ret = ROM->PageErase(FLASHMEM_BASE, ROM->GetFlashSize());
-        if (ret == 0)
-                return 0;
+        long ret;
+        ret = ROM->PageErase(sector_address, FLASH_ERASE_SIZE);
         if (ret == -1)
                 return 0x101;
         if (ret == -2)
                 return 0x102;
-        return 0x103;
+        if (ret != 0)
+                return 0x103;
+        return 0;
+}
+
+extern uint32_t flash_bank_erase(void)
+{
+        int i;
+        long ret;
+        for (i = 0; i < ROM->GetFlashSize() / FLASH_ERASE_SIZE; i++)
+        {
+                ret = flash_sector_erase(flash_sector_to_address(i));
+                if (ret != 0)
+                        return ret;
+        }
+        return 0;
 }
 
 extern uint32_t flash_program(uint8_t *data_buffer, uint32_t address,

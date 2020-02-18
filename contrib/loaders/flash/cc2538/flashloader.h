@@ -140,16 +140,4 @@ extern uint32_t flashloader_erase_sectors(uint32_t start_addr,
 extern uint32_t flashloader_program(uint8_t *src, uint32_t address,
 	uint32_t byte_count);
 
-/*
-* Convert the input address into a sector number.
-*
-* address The address.
-*
-* Returns the flash sector which the address resides in. The first sector
-* is sector 0.
-*
-*/
-static inline uint32_t flashloader_address_to_sector(uint32_t address)
-	{ return (address / FLASH_ERASE_SIZE); };
-
 #endif /* #ifndef OPENOCD_LOADERS_FLASH_CC2538_FLASHLOADER_H */
