@@ -49,14 +49,16 @@ struct rom_api {
                              unsigned long ulCount);
 } *ROM = (struct rom_api *)0x00000048;
 
-extern uint32_t flash_sector_erase(uint32_t sector_address)
+extern uint32_t flash_sector_erase(uint32_t sector)
 {
         long ret;
         bool already_erased = true;
         int i;
 
+        uint32_t address = flash_sector_to_address(sector);
+
         for (i = 0; i < FLASH_ERASE_SIZE; i += 4) {
-                if ((*(uint32_t *)(sector_address + i)) != 0xffffffff) {
+                if ((*(uint32_t *)(address + i)) != 0xffffffff) {
                         already_erased = false;
                         break;
                 }
@@ -64,7 +66,7 @@ extern uint32_t flash_sector_erase(uint32_t sector_address)
         if (already_erased)
                 return 0;
 
-        ret = ROM->PageErase(sector_address, FLASH_ERASE_SIZE);
+        ret = ROM->PageErase(address, FLASH_ERASE_SIZE);
         if (ret == -1)
                 return 0x101;
         if (ret == -2)
@@ -85,7 +87,7 @@ extern uint32_t flash_bank_erase(void)
         int num_sectors = ROM->GetFlashSize() / FLASH_ERASE_SIZE;
         for (i = num_sectors - 1; i >= 0; i--)
         {
-                ret = flash_sector_erase(flash_sector_to_address(i));
+                ret = flash_sector_erase(i);
                 if (ret != 0)
                         return ret;
         }

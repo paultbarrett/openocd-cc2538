@@ -44,8 +44,9 @@
 
 #define FLASH_ERASE_SIZE       2048
 #define FLASH_MAX_SECTOR_COUNT 256
+#define FLASH_MAX_BYTES        (FLASH_ERASE_SIZE * FLASH_MAX_SECTOR_COUNT)
 
-extern uint32_t flash_sector_erase(uint32_t sector_address);
+extern uint32_t flash_sector_erase(uint32_t sector);
 extern uint32_t flash_bank_erase(void);
 extern uint32_t flash_program(uint8_t *data_buffer, uint32_t address,
 	uint32_t count);
@@ -53,9 +54,8 @@ extern uint32_t flash_program(uint8_t *data_buffer, uint32_t address,
 static inline uint32_t flash_address_to_sector(uint32_t address) {
         return ((address - FLASHMEM_BASE) / FLASH_ERASE_SIZE);
 };
-
 static inline uint32_t flash_sector_to_address(uint32_t sector) {
-        return ((sector * FLASH_ERASE_SIZE) + FLASHMEM_BASE);
+        return (FLASHMEM_BASE + (sector * FLASH_ERASE_SIZE));
 };
 
 #endif /* #ifndef OPENOCD_LOADERS_FLASH_CC2538_FLASH_H */

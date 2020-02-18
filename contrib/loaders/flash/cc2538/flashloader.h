@@ -119,7 +119,7 @@ extern uint32_t flashloader_erase_all(void);
 * [16: 0] STATUS_FAILED_SECTOR_ERASE
 *
 */
-extern uint32_t flashloader_erase_sectors(uint32_t start_addr,
+extern uint32_t flashloader_erase_sectors(uint32_t start_address,
 	uint32_t byte_count);
 
 /*

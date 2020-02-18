@@ -230,7 +230,7 @@ static int cc2538_erase(struct flash_bank *bank, int first, int last)
 		return cc2538_mass_erase(bank);
 	}
 
-	address = first * CC2538_SECTOR_LENGTH;
+	address = bank->base + first * CC2538_SECTOR_LENGTH;
 	length = (last - first + 1) * CC2538_SECTOR_LENGTH;
 
 	retval = cc2538_init(bank);

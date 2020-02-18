@@ -74,7 +74,11 @@ uint32_t flashloader_erase_sectors(uint32_t address, uint32_t byte_count)
 	uint32_t status;
 	uint32_t idx;
 
-	/* Floor address to the start of the sector and convert to sector number */
+        if (address < FLASHMEM_BASE ||
+            (address + byte_count) > (FLASHMEM_BASE + FLASH_MAX_BYTES))
+                return STATUS_FAILED_INVALID_ARGUMENTS;
+
+	/* Convert address and count to range of sectors */
 	first_sector_idx = flash_address_to_sector(address);
 	last_sector_idx = flash_address_to_sector(address + byte_count - 1);
 
@@ -83,7 +87,7 @@ uint32_t flashloader_erase_sectors(uint32_t address, uint32_t byte_count)
 
 		/* Only erase sectors that haven't already been erased */
 		if (g_is_erased[idx] == false) {
-			status = flash_sector_erase(flash_sector_to_address(idx));
+			status = flash_sector_erase(idx);
 			if (status != 0) {
 				status = (STATUS_FAILED_SECTOR_ERASE |
 						((idx << STATUS_EXT_INFO_S) & STATUS_EXT_INFO_M) |
@@ -97,9 +101,12 @@ uint32_t flashloader_erase_sectors(uint32_t address, uint32_t byte_count)
 	return STATUS_OK;
 }
 
-uint32_t flashloader_program(uint8_t *src, uint32_t address,
-	uint32_t byte_count)
+uint32_t flashloader_program(uint8_t *src, uint32_t address, uint32_t byte_count)
 {
+        if (address < FLASHMEM_BASE ||
+            (address + byte_count) > (FLASHMEM_BASE + FLASH_MAX_BYTES))
+                return STATUS_FAILED_INVALID_ARGUMENTS;
+
 	uint32_t status = flash_program(src, address, byte_count);
 	if (status != 0) {
 		status = (STATUS_FAILED_PROGRAM |
